@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <input type="file" onchange="handleInput(event)">
+    <img id='img'>
+    <canvas id='canvas'></canvas>
+    <script>
+        function handleInput(event) {
+            let input = event.currentTarget;
+            let file = input.files[0]
+            if (!file) return
+            let reader = new FileReader()
+            reader.onload = () => {
+                img.src = reader.result
+            }
+            reader.readAsDataURL(file)
+        }
+        img.onload = () => {
+            canvas.width = img.naturalWidth
+            canvas.height = img.naturalHeight
+            let ctx = canvas.getContext('2d')
+
+
+
+            ctx.drawImage(img, 0, 0)
+
+
+
+            let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+            console.log(imageData)
+
+
+            // ctx.fillStyle = 'transparent'
+            ctx.strokeStyle = 'blue'
+            ctx.lineWidth = 5
+            ctx.strokeRect(50, 50, 30, 30)
+
+
+            let dataUrl = canvas.toDataURL('image/jpeg')
+            let parts = dataUrl.split(',')
+            let [type, encoding] = parts[0].split(':').pop().split(';')
+            console.log({ type, encoding })
+            let string = encoding == 'base64' ? atob(parts[1]) : unescape(parts[1])
+            let ints = new Uint8Array(string.length)
+            for (let i = 0; i < ints.length; i++) {
+                ints[i] = string.charCodeAt(i)
+            }
+            let blob = new Blob([ints], { type })
+            console.log(blob)
+            let ext = type.split('/').pop()
+            let filename = 'image.' + ext
+            let file = new File([blob], filename, { type })
+            console.log(file)
+            let formData = new FormData()
+            formData.set('photo', file)
+            fetch('/', {
+                method: 'POST',
+                body: formData
+            })
+        }
+    </script>
+</body>
+
+</html>

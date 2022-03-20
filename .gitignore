@@ -1,0 +1,10 @@
+py_env
+.DS_store
+node_modules
+note.md
+test.py
+py_server/runs/detect/exp/
+webServer/uploads/
+py_server/__pycache__/
+uploads
+package-lock.json
